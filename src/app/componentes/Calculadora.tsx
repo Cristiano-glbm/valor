@@ -2,7 +2,7 @@
 
 import { useMemo, useRef, useState } from "react";
 import { rastrear } from "@/lib/tracking";
-import { DEP_DESMAMA_KG } from "@/lib/produto-semen";
+import { DEP_DESMAMA_KG, IATF } from "@/lib/produto-semen";
 
 function brl(n: number) {
   return n.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
@@ -27,31 +27,53 @@ function limitar(n: number, min: number, max: number) {
 
 export default function Calculadora({ precoDoseInicial }: { precoDoseInicial: number }) {
   const [vacas, setVacas] = useState("200");
-  const [prenhez, setPrenhez] = useState("50");
+  // começa na média observada com o Pontual, não na média de mercado
+  const [prenhez, setPrenhez] = useState(String(IATF.pontualPct));
   const [kg, setKg] = useState("14,60");
   const [dose, setDose] = useState(String(precoDoseInicial));
   const [dv, setDv] = useState("1,45");
 
-  const resultado = useMemo(() => {
+  /** Roda a conta inteira para uma taxa de prenhez qualquer. */
+  const contaCom = useMemo(() => {
     const nVacas = limitar(paraNumero(vacas), 0, 1_000_000);
-    const nPrenhez = limitar(paraNumero(prenhez), 0, 100);
     const nKg = Math.max(0, paraNumero(kg));
     const nDose = Math.max(0, paraNumero(dose));
     const nDv = limitar(paraNumero(dv), 0, 10);
+    return (prenhezPct: number) => {
+      const bezerros = nVacas * (limitar(prenhezPct, 0, 100) / 100);
+      const kgExtra = bezerros * DEP_DESMAMA_KG;
+      const receita = kgExtra * nKg;
+      const custo = nVacas * nDv * nDose;
+      return { bezerros, kgExtra, receita, custo, res: receita - custo };
+    };
+  }, [vacas, kg, dose, dv]);
 
-    const bezerros = nVacas * (nPrenhez / 100);
-    const kgExtra = bezerros * DEP_DESMAMA_KG;
-    const receita = kgExtra * nKg;
-    const custo = nVacas * nDv * nDose;
-    const res = receita - custo;
-    return { bezerros, kgExtra, receita, custo, res };
-  }, [vacas, prenhez, kg, dose, dv]);
+  const prenhezAtual = limitar(paraNumero(prenhez), 0, 100);
+  const resultado = useMemo(() => contaCom(prenhezAtual), [contaCom, prenhezAtual]);
+
+  // comparação fixa entre a média de mercado e a média observada do Pontual,
+  // sempre com os números que o visitante digitou
+  const comparacao = useMemo(() => {
+    const mercado = contaCom(IATF.mercadoPct);
+    const pontual = contaCom(IATF.pontualPct);
+    return {
+      mercado,
+      pontual,
+      bezerrosAMais: pontual.bezerros - mercado.bezerros,
+      receitaAMais: pontual.receita - mercado.receita,
+    };
+  }, [contaCom]);
 
   const mediuRef = useRef(false);
   function medirUso() {
     if (mediuRef.current) return;
     mediuRef.current = true;
     rastrear("usar_calculadora", {});
+  }
+
+  function usarTaxa(pct: number) {
+    setPrenhez(String(pct));
+    medirUso();
   }
 
   const campoNumero = {
@@ -61,11 +83,31 @@ export default function Calculadora({ precoDoseInicial }: { precoDoseInicial: nu
     onFocus: medirUso,
   };
 
+  const nVacas = limitar(paraNumero(vacas), 0, 1_000_000);
+
   return (
     <section className="semen-section" id="calculadora">
       <div className="inner">
         <h2>Quanto essa dose devolve na sua fazenda</h2>
         <p className="lead">A conta é aberta. Mexa nos números com a realidade do seu rebanho e veja o resultado.</p>
+
+        {/* ------------------------------------------------------------------
+            Eficiência em IATF: o número que mais muda a conta, mostrado antes
+            dela e com a multiplicação à vista.
+            ------------------------------------------------------------------ */}
+        <div className="iatf-destaque">
+          <div className="iatf-numero">
+            <strong>{IATF.pontualPct}%</strong>
+            <span>de prenhez em IATF</span>
+          </div>
+          <p className="iatf-texto">
+            Essa é a <b>média do Pontual nas propriedades em que temos essa mensuração</b>. A
+            média de mercado em IATF vai de {IATF.mercadoFaixa}. Não é promessa: prenhez
+            também depende de manejo, nutrição e protocolo — mas é o número que vimos na prática,
+            e é com ele que a conta abaixo começa.
+          </p>
+        </div>
+
         <div className="calc">
           <form onSubmit={(e) => e.preventDefault()}>
             <div className="campo">
@@ -74,8 +116,11 @@ export default function Calculadora({ precoDoseInicial }: { precoDoseInicial: nu
             </div>
             <div className="campo">
               <label htmlFor="prenhez">
-                Taxa de prenhez que você costuma fazer
-                <small id="prenhez-ajuda">Em IATF, a média de mercado fica entre 45% e 55%</small>
+                Taxa de prenhez
+                <small id="prenhez-ajuda">
+                  Começa em {IATF.pontualPct}%, a média do Pontual onde medimos. A média de
+                  mercado em IATF vai de {IATF.mercadoFaixa}. Troque pelo seu número se quiser.
+                </small>
               </label>
               <input
                 id="prenhez"
@@ -84,6 +129,24 @@ export default function Calculadora({ precoDoseInicial }: { precoDoseInicial: nu
                 onChange={(e) => setPrenhez(e.target.value)}
                 aria-describedby="prenhez-ajuda"
               />
+              <div className="chips-taxa" role="group" aria-label="Taxas de prenhez de referência">
+                <button
+                  type="button"
+                  className={`chip-taxa ${prenhezAtual === IATF.pontualPct ? "ativo" : ""}`}
+                  aria-pressed={prenhezAtual === IATF.pontualPct}
+                  onClick={() => usarTaxa(IATF.pontualPct)}
+                >
+                  Pontual · {IATF.pontualPct}%
+                </button>
+                <button
+                  type="button"
+                  className={`chip-taxa ${prenhezAtual === IATF.mercadoPct ? "ativo" : ""}`}
+                  aria-pressed={prenhezAtual === IATF.mercadoPct}
+                  onClick={() => usarTaxa(IATF.mercadoPct)}
+                >
+                  Mercado · {IATF.mercadoPct}%
+                </button>
+              </div>
               {paraNumero(prenhez) > 100 && (
                 <p className="erro-campo">A taxa de prenhez não passa de 100%. Usamos 100% na conta.</p>
               )}
@@ -140,13 +203,102 @@ export default function Calculadora({ precoDoseInicial }: { precoDoseInicial: nu
             )}
           </div>
         </div>
+
+        {/* ------------------------------------------------------------------
+            A conta dos 62%, lado a lado com a média de mercado, usando as
+            vacas que o próprio visitante digitou.
+            ------------------------------------------------------------------ */}
+        {nVacas > 0 && (
+          <div className="iatf-conta">
+            <h3>O que os {IATF.pontualPct}% fazem nas suas {num(nVacas)} vacas</h3>
+            <div className="tabela-scroll" tabIndex={0} role="region" aria-label="Comparação entre a média de mercado e a média do Pontual em IATF">
+              <table className="tabela-semen tabela-iatf">
+                <thead>
+                  <tr>
+                    <th scope="col">A conta</th>
+                    <th scope="col">
+                      Média de mercado
+                      <br />
+                      <span className="th-sub">{IATF.mercadoPct}% de prenhez</span>
+                    </th>
+                    <th scope="col">
+                      Média do Pontual
+                      <br />
+                      <span className="th-sub">{IATF.pontualPct}% de prenhez</span>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      Bezerros nascidos
+                      <small>vacas × taxa de prenhez</small>
+                    </td>
+                    <td data-rotulo={`Mercado ${IATF.mercadoPct}%`}>
+                      <span className="conta-linha">
+                        {num(nVacas)} × {IATF.mercadoPct}% =
+                      </span>
+                      <b>{num(comparacao.mercado.bezerros)}</b>
+                    </td>
+                    <td className="col-pontual" data-rotulo={`Pontual ${IATF.pontualPct}%`}>
+                      <span className="conta-linha">
+                        {num(nVacas)} × {IATF.pontualPct}% =
+                      </span>
+                      <b>{num(comparacao.pontual.bezerros)}</b>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      Quilos a mais na desmama
+                      <small>bezerros × DEP de +{DEP_DESMAMA_KG.toLocaleString("pt-BR")} kg</small>
+                    </td>
+                    <td data-rotulo={`Mercado ${IATF.mercadoPct}%`}>{num(comparacao.mercado.kgExtra)} kg</td>
+                    <td className="col-pontual" data-rotulo={`Pontual ${IATF.pontualPct}%`}>
+                      {num(comparacao.pontual.kgExtra)} kg
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      Receita a mais
+                      <small>quilos × preço do quilo</small>
+                    </td>
+                    <td data-rotulo={`Mercado ${IATF.mercadoPct}%`}>{brl(comparacao.mercado.receita)}</td>
+                    <td className="col-pontual" data-rotulo={`Pontual ${IATF.pontualPct}%`}>
+                      {brl(comparacao.pontual.receita)}
+                    </td>
+                  </tr>
+                  <tr className="destaque">
+                    <td>
+                      Resultado depois do sêmen
+                      <small>o custo das doses é o mesmo nos dois cenários</small>
+                    </td>
+                    <td data-rotulo={`Mercado ${IATF.mercadoPct}%`}>
+                      {comparacao.mercado.custo > 0 ? brl(comparacao.mercado.res) : "—"}
+                    </td>
+                    <td className="col-pontual" data-rotulo={`Pontual ${IATF.pontualPct}%`}>
+                      {comparacao.pontual.custo > 0 ? brl(comparacao.pontual.res) : "—"}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p className="iatf-saldo">
+              A diferença: <b>+{num(comparacao.bezerrosAMais)} bezerros</b> e{" "}
+              <b>+{brl(comparacao.receitaAMais)}</b> de receita, com o mesmo gasto em sêmen — só
+              porque a prenhez saiu de {IATF.mercadoPct}% para {IATF.pontualPct}%.
+            </p>
+          </div>
+        )}
+
         <p className="nota-calc">
           Como a conta é feita: o Pontual tem DEP de <b>+9,83 kg</b> para peso à desmama, com
           acurácia 71, no sumário PMGZ 2024/4. DEP significa a diferença esperada nos filhos
           comparada com a média da raça. A conta multiplica esse ganho pelo número de bezerros
-          nascidos e pelo preço do quilo. Não entra na conta ganho de sobreano, permanência da
-          matriz nem antecipação do primeiro parto, que também têm valor. Nenhum número aqui foi
-          inventado: confira a DEP na ficha da ABS.
+          nascidos e pelo preço do quilo. Os {IATF.pontualPct}% de prenhez são a média apurada nas
+          propriedades em que acompanhamos a mensuração, e a comparação usa {IATF.mercadoPct}%,
+          meio da faixa de {IATF.mercadoFaixa} citada como média de IATF. Não entra na conta ganho
+          de sobreano, permanência da matriz nem antecipação do primeiro parto, que também têm
+          valor. Nenhum número aqui foi inventado: confira a DEP na ficha da ABS.
         </p>
       </div>
     </section>

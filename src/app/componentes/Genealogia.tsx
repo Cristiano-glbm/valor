@@ -29,9 +29,6 @@ export default function Genealogia() {
                     </li>
                     <li>
                       <span className="selo">avó</span>REM REGIS
-                      <ul>
-                        <li className="rgd-ped">Rambo da MN × Ollyna TE</li>
-                      </ul>
                     </li>
                   </ul>
                 </li>
@@ -47,9 +44,6 @@ export default function Genealogia() {
                     </li>
                     <li>
                       <span className="selo">avó</span>FAIRANI FIV YC
-                      <ul>
-                        <li className="rgd-ped">Big Benda da S. Nice × Fairani Fiv PB</li>
-                      </ul>
                     </li>
                   </ul>
                 </li>

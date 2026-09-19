@@ -1,14 +1,13 @@
 # ============================================================================
 #  PUBLICAR O SITE
 #
-#  Este script deixa a pasta pronta para ir ao ar na Vercel. Ele faz, em ordem:
+#  Este script publica o site. Ele faz, em ordem:
 #
 #    1. Apaga os restos da loja antiga (checkout, Asaas, Prisma, e-mail).
 #       Esses arquivos importam coisas que nao existem mais e quebram o build.
 #    2. Confere que o .env (com as suas chaves) NAO vai para o GitHub.
 #    3. Cria o repositorio git e o primeiro commit.
-#    4. Publica no GitHub (se voce tiver o GitHub CLI) ou mostra os dois
-#       comandos que faltam.
+#    4. Envia para o GitHub — e o push faz a Netlify publicar sozinha.
 #
 #  COMO RODAR:
 #    1. Clique com o botao direito na pasta do projeto > "Abrir no Terminal"
@@ -38,18 +37,18 @@ if (-not (Test-Path "package.json")) {
 # ---------------------------------------------------------------- 1. limpeza
 Titulo "1. Limpando os restos da loja antiga"
 
-$pastas = @("src\app\api", "prisma")
+$pastas = @("src/app/api", "prisma")
 $arquivos = @(
-    "src\middleware.ts",
-    "src\app\componentes\CheckoutModal.tsx",
-    "src\lib\prisma.ts",
-    "src\lib\asaas.ts",
-    "src\lib\email.ts",
-    "src\lib\seguranca.ts",
-    "src\lib\pedidos-status.ts",
-    "src\lib\webhook-idempotencia.ts",
-    "src\lib\tracking-servidor.ts",
-    "src\lib\env-load.ts"
+    "src/middleware.ts",
+    "src/app/componentes/CheckoutModal.tsx",
+    "src/lib/prisma.ts",
+    "src/lib/asaas.ts",
+    "src/lib/email.ts",
+    "src/lib/seguranca.ts",
+    "src/lib/pedidos-status.ts",
+    "src/lib/webhook-idempotencia.ts",
+    "src/lib/tracking-servidor.ts",
+    "src/lib/env-load.ts"
 )
 
 $encontrados = @()
@@ -76,6 +75,22 @@ if (Test-Path ".next") { Remove-Item -Recurse -Force ".next"; Ok "removido o cac
 
 # ------------------------------------------------------------------- 2. git
 Titulo "2. Preparando o repositorio"
+
+# Daqui para baixo o roteiro e todo git. O git escreve mensagens normais de
+# progresso no stderr (o "git push" faz isso sempre), e com
+# ErrorActionPreference = "Stop" o PowerShell trata isso como erro e aborta o
+# script no meio. Entao passamos para "Continue" e conferimos o resultado de
+# cada comando pelo codigo de saida, que e o sinal confiavel.
+$ErrorActionPreference = "Continue"
+
+function ConfereGit($descricao) {
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host ""
+        Erro "$descricao falhou (codigo $LASTEXITCODE)."
+        Write-Host "  A mensagem do git esta logo acima. Nada foi enviado."
+        exit 1
+    }
+}
 
 $git = Get-Command git -ErrorAction SilentlyContinue
 if (-not $git) {
@@ -122,39 +137,40 @@ if ($vazando.Count -gt 0) {
 }
 Ok ".env e variantes estao fora do commit"
 
-# ------------------------------------------------- 3b. midia solta no public
-Titulo "3b. Tirando midia nao usada do repositorio"
+# ----------------------------------------- 3b. arquivos versionados por engano
+Titulo "3b. Limpando o que nao devia estar versionado"
 
-# Sobraram videos e fotos do WhatsApp em public/images que o site nao
-# referencia em lugar nenhum. Eles continuam no seu disco; so saem do
-# repositorio, para nao subir ~7 MB de peso morto a cada deploy.
-$lixo = @()
-Get-ChildItem -Path "public\images" -Filter "WhatsApp*" -ErrorAction SilentlyContinue |
-    ForEach-Object { $lixo += "public/images/$($_.Name)" }
-if (Test-Path "public\images\hero-direita.jpg") { $lixo += "public/images/hero-direita.jpg" }
+# Pergunta ao proprio git quais arquivos ele ainda rastreia APESAR de o
+# .gitignore mandar ignorar — caso da midia do WhatsApp em public/images, que
+# entrou no commit antes de a regra existir. Acrescentar ao .gitignore nao
+# desfaz o rastreamento: e preciso "git rm --cached", que tira do repositorio
+# e NAO apaga do disco.
+$ignoradosMasVersionados = @(git ls-files --cached --ignored --exclude-standard)
 
-$tirados = 0
-foreach ($f in $lixo) {
-    git ls-files --error-unmatch $f 2>$null | Out-Null
-    if ($LASTEXITCODE -eq 0) {
-        git rm --cached --quiet $f
+if ($ignoradosMasVersionados.Count -eq 0) {
+    Ok "nada versionado contra o .gitignore"
+} else {
+    foreach ($f in $ignoradosMasVersionados) {
+        git rm --cached --quiet -- $f
         Write-Host "  tirado do repositorio (continua no disco): $f" -ForegroundColor DarkGray
-        $tirados++
     }
+    Ok "$($ignoradosMasVersionados.Count) arquivo(s) saiu(ram) do repositorio"
 }
-if ($tirados -eq 0) { Ok "nada de midia solta versionada" } else { Ok "$tirados arquivo(s) fora do repositorio" }
 
 # ---------------------------------------------------------------- 4. commit
 Titulo "4. Criando o commit"
 
 git add -A
-$mudou = git status --porcelain
-if (-not $mudou) {
+ConfereGit "o 'git add'"
+
+$mudou = @(git status --porcelain)
+if ($mudou.Count -eq 0) {
     Ok "nada mudou desde o ultimo commit"
 } else {
-    $n = (git diff --cached --name-only | Measure-Object -Line).Lines
-    git commit -m "Site do Pontual FIV St. Cruz: pagina estatica com simulador de pedido e WhatsApp" | Out-Null
-    Ok "commit criado com $n arquivo(s)"
+    $n = @(git diff --cached --name-only).Count
+    git commit -m "Atualizacao do site do Pontual FIV St. Cruz" | Out-Null
+    ConfereGit "o 'git commit'"
+    Ok "commit criado com $n arquivo(s) alterado(s)"
 }
 
 Write-Host ""
@@ -164,11 +180,12 @@ git ls-files | ForEach-Object { Write-Host "     $_" -ForegroundColor DarkGray }
 # ---------------------------------------------------------------- 5. GitHub
 Titulo "5. Publicando no GitHub"
 
-$temRemote = git remote 2>$null
-if ($temRemote) {
-    Ok "ja existe um remote configurado ($temRemote)"
+$temRemote = @(git remote)
+if ($temRemote.Count -gt 0) {
+    Ok "remote configurado ($($temRemote -join ', '))"
     Write-Host "  Enviando..."
     git push -u origin main
+    ConfereGit "o 'git push'"
     Ok "enviado"
 } else {
     $gh = Get-Command gh -ErrorAction SilentlyContinue
@@ -179,6 +196,7 @@ if ($temRemote) {
         $vis = Read-Host "  Privado ou publico? (p = privado, u = publico) [p]"
         $flagVis = if ($vis -eq "u") { "--public" } else { "--private" }
         gh repo create $nomeRepo $flagVis --source=. --remote=origin --push
+        ConfereGit "a criacao do repositorio no GitHub"
         Ok "repositorio criado e enviado"
     } else {
         Write-Host ""
@@ -197,6 +215,7 @@ if ($temRemote) {
 }
 
 Titulo "Pronto"
-Write-Host "  Proximo passo: importar o repositorio na Vercel."
-Write-Host "  O passo a passo esta em docs\DEPLOY.md"
+Write-Host "  A Netlify ve o push sozinha e publica em 1 a 2 minutos."
+Write-Host "  Acompanhe em: https://app.netlify.com  (aba Deploys)"
+Write-Host "  Se algo der errado, o passo a passo esta em docs/DEPLOY.md"
 Write-Host ""

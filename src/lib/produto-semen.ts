@@ -76,10 +76,26 @@ export const PROGENIE = {
 // DEP usada na calculadora de retorno (peso à desmama, PMGZ 2024/4)
 export const DEP_DESMAMA_KG = 9.83;
 
+/**
+ * Eficiência em IATF.
+ *
+ * `pontual` é a média de prenhez observada com o Pontual nas propriedades em
+ * que a Valor acompanha essa mensuração — é média apurada, não promessa: a
+ * prenhez depende também de manejo, nutrição e protocolo.
+ *
+ * `mercado` é o meio da faixa de 45% a 55% citada como média de IATF no país,
+ * e serve de base de comparação na calculadora.
+ */
+export const IATF = {
+  pontualPct: 62,
+  mercadoPct: 50,
+  mercadoFaixa: "45% a 55%",
+};
+
 // Genealogia
 export const GENEALOGIA = {
-  pai: { nome: "REM USP", avo: { nome: "REM QUISCO", origem: "Moyne × Minala" }, avoMaterna: { nome: "REM REGIS", origem: "Rambo da MN × Ollyna TE" } },
-  mae: { nome: "FARPA FIV HV", avo: { nome: "HEROI DE NAVIRAÍ", origem: "Donato de Naviraí × Taquira da SM" }, avoMaterna: { nome: "FAIRANI FIV YC", origem: "Big Benda da S. Nice × Fairani Fiv PB" } },
+  pai: { nome: "REM USP", avo: { nome: "REM QUISCO", origem: "Moyne × Minala" }, avoMaterna: { nome: "REM REGIS" } },
+  mae: { nome: "FARPA FIV HV", avo: { nome: "HEROI DE NAVIRAÍ", origem: "Donato de Naviraí × Taquira da SM" }, avoMaterna: { nome: "FAIRANI FIV YC" } },
 };
 
 // Tabela de preços por degrau (real, validada em 04/09/2026 — ver
