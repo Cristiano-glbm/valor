@@ -58,8 +58,17 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  // O site é 100% pré-renderizado: uma página, sem API, sem middleware, sem
+  // rota dinâmica. Exportar como HTML puro tira do caminho qualquer adaptador
+  // de servidor (foi o que dava "Page not found" na Netlify) e faz a mesma
+  // pasta `out/` servir em Netlify, Vercel, Cloudflare Pages ou hospedagem
+  // comum. Os cabeçalhos de segurança passam a vir do `netlify.toml` /
+  // `vercel.json`, porque `headers()` abaixo não se aplica a export estático.
+  output: "export",
   images: {
-    formats: ["image/avif", "image/webp"],
+    // obrigatório no export: não existe servidor para otimizar imagem.
+    // (o projeto não usa next/image hoje, mas isso evita quebrar no futuro)
+    unoptimized: true,
   },
   compiler: {
     // Em produção remove console.log de depuração, mas PRESERVA a trilha de
@@ -71,19 +80,12 @@ const nextConfig: NextConfig = {
   compress: true,
   reactStrictMode: true,
 
-  async headers() {
-    return [
-      {
-        source: "/:path*",
-        headers: CABECALHOS_SEGURANCA,
-      },
-      {
-        // mídia é imutável: nome do arquivo muda quando o conteúdo muda
-        source: "/videos/:path*",
-        headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
-      },
-    ];
-  },
+  // NOTA: não existe mais `headers()` aqui. Com `output: "export"` o Next não
+  // serve as páginas, então `headers()` seria silenciosamente ignorado — o que
+  // é pior do que não existir. Quem aplica os cabeçalhos de segurança agora é
+  // a hospedagem: `netlify.toml` e `vercel.json`.
+  // A constante CSP acima continua sendo a referência escrita da política;
+  // se mexer nela, replique nesses dois arquivos.
 };
 
 export default nextConfig;

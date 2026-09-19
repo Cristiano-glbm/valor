@@ -58,13 +58,32 @@ código do cliente aberto.
 1. Entre em <https://app.netlify.com> e crie a conta com **Login com GitHub**.
 2. **Add new site → Import an existing project → GitHub**.
 3. Autorize e escolha o repositório `pontual-st-cruz`.
-4. Ela reconhece o Next.js sozinha. Confira só:
-   - **Build command:** `npm run build`
-   - **Publish directory:** `.next`
+4. **Deixe "Build command" e "Publish directory" em branco.** O arquivo
+   `netlify.toml`, que já está no repositório, informa os dois. O que você
+   digitar no painel *sobrescreve* o arquivo — é exatamente assim que se
+   ganha um "Page not found".
 5. Clique em **Add environment variables** e cole as da tabela mais abaixo
    (ou pule — o site sobe sem nenhuma).
 6. **Deploy site**. Em uns 2 minutos ele responde num endereço tipo
    `nome-aleatorio.netlify.app`.
+
+### Se der "Page not found"
+
+É o erro clássico de Next.js na Netlify, e a causa é quase sempre a pasta
+publicada. O site é exportado como **HTML puro** (`output: "export"` no
+`next.config.ts`), então a pasta certa é **`out`**, não `.next`.
+
+Confira em **Site configuration → Build & deploy → Build settings**:
+
+| Campo | Valor correto |
+|---|---|
+| Base directory | *(vazio)* |
+| Build command | `npm run build` — ou vazio, deixando o `netlify.toml` mandar |
+| Publish directory | `out` — ou vazio, deixando o `netlify.toml` mandar |
+
+Se algum desses campos estiver preenchido com outra coisa (principalmente
+`.next`), **apague** e clique em **Deploys → Trigger deploy → Clear cache and
+deploy site**. Limpar o cache importa: sem isso ela reaproveita o build torto.
 
 ---
 
@@ -73,8 +92,8 @@ código do cliente aberto.
 1. Entre em <https://vercel.com> e crie a conta com **Continue with GitHub**.
 2. **Add New → Project**.
 3. Em **Import Git Repository**, escolha `pontual-st-cruz` e clique em **Import**.
-4. A Vercel detecta o Next.js sozinha. **Não mexa** em Framework Preset, Build
-   Command nem Output Directory.
+4. A Vercel detecta o Next.js sozinha e entende o `output: "export"`. **Não
+   mexa** em Framework Preset, Build Command nem Output Directory.
 5. Abra **Environment Variables** e cole as da tabela abaixo.
 6. **Deploy**. Em 1 a 2 minutos o site responde em `algo.vercel.app`.
 
@@ -151,6 +170,18 @@ A plataforma vê o push, constrói e publica sozinha em 1 a 2 minutos. Se o buil
 quebrar, ela **mantém a versão anterior no ar** e manda o erro por e-mail.
 
 ---
+
+## Como o site é construído
+
+`npm run build` roda o Next com `output: "export"` e cospe uma pasta **`out/`**
+com HTML, CSS, JS, imagens e vídeos — arquivos estáticos e nada mais. Não há
+servidor, função serverless nem adaptador de plataforma no meio. Por isso a
+mesma pasta serve igual na Netlify, na Vercel, no Cloudflare Pages ou numa
+hospedagem comum.
+
+A consequência prática: os cabeçalhos de segurança não podem mais vir do
+`next.config.ts` (que só vale quando existe servidor). Eles moram em
+`netlify.toml` e `vercel.json`. **Se mexer na CSP, mexa nos dois.**
 
 ## Se o build falhar
 

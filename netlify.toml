@@ -1,0 +1,53 @@
+# Configuração da Netlify.
+#
+# Com este arquivo no repositório, a Netlify NÃO precisa de nenhum ajuste no
+# painel: ela lê daqui o comando de build e a pasta a publicar. Se você tinha
+# preenchido "Build command" ou "Publish directory" na mão, APAGUE os dois
+# campos no painel (Site configuration → Build & deploy → Build settings),
+# senão o que está no painel vence este arquivo.
+#
+# O site é exportado como HTML puro (`output: "export"` no next.config.ts),
+# então não existe adaptador, função serverless nem runtime do Next no meio.
+# É a pasta `out/` servida direto — foi o que resolveu o "Page not found".
+
+[build]
+  command = "npm run build"
+  publish = "out"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# ---------------------------------------------------------------------------
+# Cabeçalhos de segurança.
+# Com export estático o `headers()` do next.config.ts não vale mais; a política
+# passou a morar aqui. Se mexer na CSP, mexa também no vercel.json.
+# ---------------------------------------------------------------------------
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://connect.facebook.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https://www.google-analytics.com https://www.googletagmanager.com https://www.facebook.com; media-src 'self'; connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://stats.g.doubleclick.net https://www.googletagmanager.com https://connect.facebook.net https://graph.facebook.com; frame-src https://www.facebook.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests"
+    Strict-Transport-Security = "max-age=63072000; includeSubDomains; preload"
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()"
+    Cross-Origin-Opener-Policy = "same-origin"
+    X-DNS-Prefetch-Control = "on"
+
+# Mídia é imutável: o nome do arquivo muda quando o conteúdo muda.
+[[headers]]
+  for = "/videos/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/images/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Os bundles do Next já vêm com hash no nome.
+[[headers]]
+  for = "/_next/static/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"

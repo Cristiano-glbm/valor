@@ -42,7 +42,7 @@ eles estão implementados:
 
 | Controle | O que exige | Onde está |
 |---|---|---|
-| A.5.14 Transferência de informação | Proteger dados em trânsito | HSTS + `upgrade-insecure-requests` (`next.config.ts`) |
+| A.5.14 Transferência de informação | Proteger dados em trânsito | HSTS + `upgrade-insecure-requests` (`netlify.toml` / `vercel.json`) |
 | A.8.9 Gestão de configuração | Configuração endurecida | CSP, `X-Frame-Options`, `nosniff`, `Referrer-Policy`, `Permissions-Policy`, `poweredByHeader: false` |
 | A.8.23 Filtragem web | Controlar conteúdo externo | CSP com allowlist: só Google Fonts, GA4 e Meta Pixel |
 | A.8.26 Requisitos da aplicação | Validar entrada | Quantidade limitada a 1–6.500; campos livres com tamanho máximo |
@@ -57,7 +57,14 @@ resposta a incidentes e auditoria interna.
 
 ## Cabeçalhos de segurança
 
-Definidos em `next.config.ts` e aplicados a todas as páginas:
+Definidos em `netlify.toml` e `vercel.json` e aplicados a todas as páginas.
+
+Por que não no `next.config.ts`: o site é exportado como HTML puro
+(`output: "export"`), e nesse modo o Next não serve as páginas — o `headers()`
+dele seria ignorado em silêncio. Quem aplica cabeçalho passou a ser a
+hospedagem. A constante `CSP` continua escrita no `next.config.ts` como
+referência da política; **se mexer nela, replique nos dois arquivos.**
+
 
 - **Content-Security-Policy** — libera apenas os domínios necessários (Google
   Fonts, GA4, Meta Pixel) e bloqueia o resto. Inclui `frame-ancestors 'none'`
@@ -75,9 +82,9 @@ Remover isso exige CSP com nonce gerado por middleware em toda requisição de
 página. Numa página sem formulário que envia dados e sem área logada, o risco
 residual é baixo — mas fica anotado como melhoria possível.
 
-Em desenvolvimento, `'unsafe-eval'` e o websocket de `localhost` são liberados,
-senão o hot reload do Next não funciona e nenhum componente hidrata. Em
-produção, nada disso é liberado.
+Em desenvolvimento o Next precisa de `'unsafe-eval'` e do websocket de
+`localhost` para o hot reload; como em produção quem manda é o `netlify.toml`,
+nada disso vaza para o site publicado.
 
 ---
 
@@ -144,8 +151,9 @@ mais gateway. Como consequência, quem usa bloqueador de anúncio não é contad
 
 1. `npm install`
 2. `npm run build`
-3. Subir. Como o site é estático, serve em qualquer lugar — Vercel, Netlify,
-   Cloudflare Pages, ou até hospedagem comum.
+3. Subir a pasta `out/`. Como o site é estático, serve em qualquer lugar —
+   Netlify, Vercel, Cloudflare Pages, ou até hospedagem comum.
+   O passo a passo completo está em `docs/DEPLOY.md`.
 
 Variáveis de ambiente (todas opcionais, veja `.env.example`):
 `NEXT_PUBLIC_WHATSAPP_TELEFONE`, `NEXT_PUBLIC_WHATSAPP_RESPONSAVEL`,

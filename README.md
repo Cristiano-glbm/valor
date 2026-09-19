@@ -64,11 +64,18 @@ O caminho completo, com print do que clicar, está em
 1. Rode `publicar.ps1` (Windows) para limpar os restos da versão antiga e
    criar o commit inicial.
 2. Suba o repositório para o GitHub.
-3. Na Vercel, **Add New → Project → Import** do repositório. Ela detecta o
-   Next.js sozinha; não mexa em build command nem output directory.
+3. Importe o repositório na hospedagem (Netlify ou Vercel). **Não preencha
+   build command nem publish directory na mão** — o `netlify.toml` e o
+   `vercel.json` já dizem tudo.
 4. Cole as variáveis de ambiente que quiser usar e clique em **Deploy**.
 
 A partir daí, todo `git push` na branch principal publica sozinho.
+
+O build gera uma pasta **`out/`** com HTML puro (`output: "export"`): sem
+servidor, sem função serverless, sem adaptador de plataforma. A mesma pasta
+serve igual na Netlify, na Vercel, no Cloudflare Pages ou numa hospedagem
+comum. Por causa disso, os cabeçalhos de segurança vêm do `netlify.toml` e do
+`vercel.json`, não do `next.config.ts`.
 
 ## Segurança, privacidade e medição
 

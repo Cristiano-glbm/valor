@@ -1,10 +1,11 @@
 # dependências
 /node_modules
 
-# build do Next
+# build do Next (o `out/` é o export estático, gerado pela hospedagem)
 /.next/
 /out/
 /build
+/.netlify
 
 # variáveis de ambiente — nunca versionar
 # (cobre .env, .env.local, .env.production; só o exemplo passa)
