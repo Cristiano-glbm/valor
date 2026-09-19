@@ -122,6 +122,28 @@ if ($vazando.Count -gt 0) {
 }
 Ok ".env e variantes estao fora do commit"
 
+# ------------------------------------------------- 3b. midia solta no public
+Titulo "3b. Tirando midia nao usada do repositorio"
+
+# Sobraram videos e fotos do WhatsApp em public/images que o site nao
+# referencia em lugar nenhum. Eles continuam no seu disco; so saem do
+# repositorio, para nao subir ~7 MB de peso morto a cada deploy.
+$lixo = @()
+Get-ChildItem -Path "public\images" -Filter "WhatsApp*" -ErrorAction SilentlyContinue |
+    ForEach-Object { $lixo += "public/images/$($_.Name)" }
+if (Test-Path "public\images\hero-direita.jpg") { $lixo += "public/images/hero-direita.jpg" }
+
+$tirados = 0
+foreach ($f in $lixo) {
+    git ls-files --error-unmatch $f 2>$null | Out-Null
+    if ($LASTEXITCODE -eq 0) {
+        git rm --cached --quiet $f
+        Write-Host "  tirado do repositorio (continua no disco): $f" -ForegroundColor DarkGray
+        $tirados++
+    }
+}
+if ($tirados -eq 0) { Ok "nada de midia solta versionada" } else { Ok "$tirados arquivo(s) fora do repositorio" }
+
 # ---------------------------------------------------------------- 4. commit
 Titulo "4. Criando o commit"
 

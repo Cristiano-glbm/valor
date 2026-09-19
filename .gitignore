@@ -35,6 +35,11 @@
 /src/lib/tracking-servidor.ts
 /src/lib/env-load.ts
 
+# mídia solta que sobrou na pasta e o site não usa (o publicar.ps1 tira do
+# repositório sem apagar do disco)
+/public/images/WhatsApp*
+/public/images/hero-direita.jpg
+
 # diversos
 .DS_Store
 Thumbs.db
