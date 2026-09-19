@@ -1,0 +1,46 @@
+# dependências
+/node_modules
+
+# build do Next
+/.next/
+/out/
+/build
+
+# variáveis de ambiente — nunca versionar
+# (cobre .env, .env.local, .env.production; só o exemplo passa)
+.env
+.env*
+!.env.example
+
+# pasta que o app do Claude cria na máquina local
+/Claude outputs/
+
+# script antigo, substituído pelo publicar.ps1
+/limpar-loja.ps1
+
+# rede de segurança: restos da antiga loja (checkout/Asaas/Prisma).
+# O publicar.ps1 apaga esses arquivos; as linhas abaixo garantem que,
+# mesmo que sobrem no disco, eles não cheguem ao GitHub nem à Vercel.
+/prisma/
+/src/app/api/
+/src/middleware.ts
+/src/app/componentes/CheckoutModal.tsx
+/src/lib/prisma.ts
+/src/lib/asaas.ts
+/src/lib/email.ts
+/src/lib/seguranca.ts
+/src/lib/pedidos-status.ts
+/src/lib/webhook-idempotencia.ts
+/src/lib/tracking-servidor.ts
+/src/lib/env-load.ts
+
+# diversos
+.DS_Store
+Thumbs.db
+*.pem
+npm-debug.log*
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
