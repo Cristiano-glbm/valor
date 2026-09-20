@@ -165,7 +165,11 @@ h2 { font-family: 'Playfair Display', serif; font-size: clamp(1.8rem, 2.8vw, 2.5
 }
 .hero-valor-foto {
   position: absolute; top: 0; right: 0; bottom: 0; width: 56%; z-index: 1;
-  background-image: url("/images/hero-direita.png");
+  /* O "-v2" no nome não é enfeite: o arquivo antigo foi servido com cache de
+     1 ano, então celulares que visitaram o site antes continuariam mostrando
+     a foto velha. Trocar o nome troca a URL, e a URL nova ninguém tem em
+     cache. Se a foto mudar de novo, mude o número junto. */
+  background-image: url("/images/hero-direita-v2.png");
   /* A foto é um PNG recortado (fundo transparente), 1131x906. Com `cover` a
      caixa cortava a cernelha do boi no topo — 26px no celular, 53px em tela
      grande. `contain` garante que o animal e o selo apareçam inteiros em

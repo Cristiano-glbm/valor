@@ -35,16 +35,31 @@
     Cross-Origin-Opener-Policy = "same-origin"
     X-DNS-Prefetch-Control = "on"
 
-# Mídia é imutável: o nome do arquivo muda quando o conteúdo muda.
+# Mídia: SEM "immutable".
+#
+# Aqui estava o erro que fazia o celular mostrar uma foto do boi diferente da
+# do computador. Estes arquivos têm nome fixo (hero-direita.png e companhia),
+# e eu os servia com cache de 1 ano marcado como "immutable" — que quer dizer
+# "nem pergunte de novo". Quem tinha visitado o site antes da troca da foto
+# ficava com a versão velha presa no navegador até 2027, sem jeito de
+# atualizar nem recarregando.
+#
+# "must-revalidate" com max-age=0 faz o navegador perguntar "mudou?" a cada
+# visita. Como a Netlify manda ETag, a resposta é um 304 de poucos bytes
+# quando nada mudou: praticamente de graça, e a troca de qualquer imagem
+# passa a valer na hora.
+#
+# O que PODE ser immutable é o que tem hash no nome, como /_next/static/*,
+# porque ali o nome muda junto com o conteúdo.
 [[headers]]
   for = "/videos/*"
   [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
+    Cache-Control = "public, max-age=0, must-revalidate"
 
 [[headers]]
   for = "/images/*"
   [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
+    Cache-Control = "public, max-age=0, must-revalidate"
 
 # Os bundles do Next já vêm com hash no nome.
 [[headers]]

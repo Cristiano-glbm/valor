@@ -39,6 +39,9 @@
 # repositório sem apagar do disco)
 /public/images/WhatsApp*
 /public/images/hero-direita.jpg
+# versão antiga da foto do hero: substituída por hero-direita-v2.png, que tem
+# nome novo justamente para furar o cache velho dos celulares
+/public/images/hero-direita.png
 
 # diversos
 .DS_Store
