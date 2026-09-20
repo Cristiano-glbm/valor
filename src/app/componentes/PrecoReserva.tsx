@@ -109,16 +109,14 @@ export default function PrecoReserva() {
       `• Total estimado: ${brl(total)}`,
     ];
     if (descontoPorQuantidade > 0) {
-      linhas.push(
-        `• Desconto por quantidade: ${brl(descontoPorQuantidade)} (comparado a ${brl(precoBase)}/dose)`,
-      );
+      linhas.push(`• Desconto por quantidade: ${brl(descontoPorQuantidade)}`);
     }
     if (nome.trim()) linhas.push(`• Meu nome: ${nome.trim()}`);
     const uf = ESTADOS.find((e) => e.uf === estado);
     if (uf) linhas.push(`• Estado: ${uf.nome} (${uf.uf})`);
     linhas.push("", "Pode me confirmar a disponibilidade e o frete?");
     return linhas.join("\n");
-  }, [q, precoUnit, total, descontoPorQuantidade, precoBase, nome, estado]);
+  }, [q, precoUnit, total, descontoPorQuantidade, nome, estado]);
 
   const linkWhatsapp = `https://wa.me/${CONDICOES_COMERCIAIS.whatsappTelefone}?text=${encodeURIComponent(mensagem)}`;
 
