@@ -478,7 +478,9 @@ footer { background: var(--preto); border-top: 1px solid var(--preto-borda); pad
 
 /* campos opcionais que enriquecem a mensagem do WhatsApp */
 .simulador-campos {
-  display: grid; grid-template-columns: 1fr 88px; gap: 0.7rem;
+  /* o estado virou lista suspensa e precisa caber "Mato Grosso do Sul (MS)",
+     então as duas colunas dividem o espaço e viram uma só quando falta largura */
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.7rem;
   margin: 1.2rem 0 1rem; padding-top: 1.1rem; border-top: 1px solid var(--preto-borda);
 }
 .campo-simples label {
@@ -486,15 +488,26 @@ footer { background: var(--preto); border-top: 1px solid var(--preto-borda); pad
   margin-bottom: 0.35rem;
 }
 .campo-simples .opcional { font-weight: 400; color: var(--cinza-medio); text-transform: none; }
-.campo-simples input {
+.campo-simples input, .campo-simples select {
   width: 100%; min-height: 48px; padding: 0.7rem 0.9rem;
   border: 1px solid var(--preto-borda); border-radius: 2px;
   font-family: inherit; font-size: 1rem; color: var(--branco); background: var(--preto);
   transition: border-color 0.2s;
 }
-.campo-simples input:focus { border-color: var(--ouro); }
+.campo-simples input:focus, .campo-simples select:focus { border-color: var(--ouro); }
 .campo-simples input::placeholder { color: var(--cinza-medio); opacity: 0.7; }
-.campo-uf input { text-align: center; letter-spacing: 0.12em; text-transform: uppercase; }
+/* seta própria: a nativa muda de cara em cada navegador e não acompanha o tema */
+.campo-simples select {
+  appearance: none; -webkit-appearance: none; cursor: pointer;
+  padding-right: 2.2rem;
+  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%),
+                    linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position: right 1.05rem center, right 0.75rem center;
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+}
+/* no menu aberto quem manda é o sistema, então fixamos cores legíveis nos dois temas */
+.campo-simples select option { background: var(--preto-card); color: var(--texto-claro); }
 
 /* botão principal: agora leva para o WhatsApp */
 .btn-whatsapp {

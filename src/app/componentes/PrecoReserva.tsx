@@ -22,6 +22,37 @@ import { rastrear } from "@/lib/tracking";
 const CHIPS = [60, 100, 200, 300, 500, 1000];
 const QUANTIDADE_MAXIMA = 6500;
 
+/** Unidades da federação, em ordem alfabética de nome. */
+const ESTADOS: Array<{ uf: string; nome: string }> = [
+  { uf: "AC", nome: "Acre" },
+  { uf: "AL", nome: "Alagoas" },
+  { uf: "AP", nome: "Amapá" },
+  { uf: "AM", nome: "Amazonas" },
+  { uf: "BA", nome: "Bahia" },
+  { uf: "CE", nome: "Ceará" },
+  { uf: "DF", nome: "Distrito Federal" },
+  { uf: "ES", nome: "Espírito Santo" },
+  { uf: "GO", nome: "Goiás" },
+  { uf: "MA", nome: "Maranhão" },
+  { uf: "MT", nome: "Mato Grosso" },
+  { uf: "MS", nome: "Mato Grosso do Sul" },
+  { uf: "MG", nome: "Minas Gerais" },
+  { uf: "PA", nome: "Pará" },
+  { uf: "PB", nome: "Paraíba" },
+  { uf: "PR", nome: "Paraná" },
+  { uf: "PE", nome: "Pernambuco" },
+  { uf: "PI", nome: "Piauí" },
+  { uf: "RJ", nome: "Rio de Janeiro" },
+  { uf: "RN", nome: "Rio Grande do Norte" },
+  { uf: "RS", nome: "Rio Grande do Sul" },
+  { uf: "RO", nome: "Rondônia" },
+  { uf: "RR", nome: "Roraima" },
+  { uf: "SC", nome: "Santa Catarina" },
+  { uf: "SP", nome: "São Paulo" },
+  { uf: "SE", nome: "Sergipe" },
+  { uf: "TO", nome: "Tocantins" },
+];
+
 function brl(n: number) {
   return n.toLocaleString("pt-BR", { style: "currency", currency: "BRL", minimumFractionDigits: 2 });
 }
@@ -83,7 +114,8 @@ export default function PrecoReserva() {
       );
     }
     if (nome.trim()) linhas.push(`• Meu nome: ${nome.trim()}`);
-    if (estado.trim()) linhas.push(`• Estado: ${estado.trim().toUpperCase()}`);
+    const uf = ESTADOS.find((e) => e.uf === estado);
+    if (uf) linhas.push(`• Estado: ${uf.nome} (${uf.uf})`);
     linhas.push("", "Pode me confirmar a disponibilidade e o frete?");
     return linhas.join("\n");
   }, [q, precoUnit, total, descontoPorQuantidade, precoBase, nome, estado]);
@@ -230,16 +262,18 @@ export default function PrecoReserva() {
                   <label htmlFor="sim-estado">
                     Estado <span className="opcional">(opcional)</span>
                   </label>
-                  <input
+                  <select
                     id="sim-estado"
-                    type="text"
-                    maxLength={2}
                     value={estado}
-                    onChange={(e) =>
-                      setEstado(e.target.value.replace(/[^a-zA-Z]/g, "").toUpperCase())
-                    }
-                    placeholder="GO"
-                  />
+                    onChange={(e) => setEstado(e.target.value)}
+                  >
+                    <option value="">Selecione o estado</option>
+                    {ESTADOS.map((e) => (
+                      <option key={e.uf} value={e.uf}>
+                        {e.nome} ({e.uf})
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
 
