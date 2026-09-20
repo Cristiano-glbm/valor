@@ -112,7 +112,7 @@ export default function PrecoReserva() {
         <h2>Simule o seu pedido</h2>
         <p className="lead">
           Escolha a quantidade e veja o preço na hora. O fechamento é direto com{" "}
-          {CONDICOES_COMERCIAIS.responsavel}, pelo WhatsApp — sem cadastro e sem pagamento pelo
+          {CONDICOES_COMERCIAIS.responsavel}, pelo WhatsApp, sem cadastro e sem pagamento pelo
           site.
         </p>
 

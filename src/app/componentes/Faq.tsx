@@ -5,7 +5,7 @@ const PERGUNTAS = [
   },
   {
     q: "Ele tem CEIP?",
-    a: "Não localizamos CEIP para este animal e não vamos afirmar que ele tem. O CEIP é um selo do Ministério da Agricultura que certifica de 20% a 40% dos animais de cada safra. É um bom filtro, mas não é a mesma coisa que DEP com acurácia alta e progênie avaliada — e é isso que o Pontual tem. Se o CEIP for requisito fechado para você, diga isso na conversa e a gente é honesto sobre o que temos.",
+    a: "Não localizamos CEIP para este animal e não vamos afirmar que ele tem. O CEIP é um selo do Ministério da Agricultura que certifica de 20% a 40% dos animais de cada safra. É um bom filtro, mas não é a mesma coisa que DEP com acurácia alta e progênie avaliada, e é isso que o Pontual tem. Se o CEIP for requisito fechado para você, diga isso na conversa e a gente é honesto sobre o que temos.",
   },
   {
     q: "Como sei que essas DEPs são verdadeiras?",

@@ -12,7 +12,7 @@ export default function TouroHeroTexto() {
 
         <div className="ruler">
           <p className="lab">
-            Ganho da desmama ao sobreano — posição na raça Nelore: <b>top 0,1%</b>
+            Ganho da desmama ao sobreano, posição na raça Nelore: <b>top 0,1%</b>
           </p>
           <div className="track">
             <i style={{ width: "99.9%" }}></i>

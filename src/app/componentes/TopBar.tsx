@@ -51,7 +51,7 @@ export default function TopBar() {
   return (
     <div className={`navbar-valor${comFundo ? " com-fundo" : ""}`} ref={barraRef}>
       <div className="navbar-valor-inner">
-        <a href="#top" className="navbar-logo" aria-label="Valor Assessoria Pecuária — voltar ao topo">
+        <a href="#top" className="navbar-logo" aria-label="Valor Assessoria Pecuária: voltar ao topo">
           <img
             src="/images/logo-navbar.png"
             alt="Valor Assessoria Pecuária"

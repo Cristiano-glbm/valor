@@ -28,19 +28,19 @@ const SLIDES: Slide[] = [
     tipo: "video",
     src: "/videos/prole-01.mp4",
     poster: "/images/prole-video-01-poster.jpg",
-    alt: "Vídeo dos bezerros filhos do Pontual em vacas cara-limpa no curral",
+    alt: "Vídeo dos bezerros filhos do Pontual em vacas cara-limpa, pastejando no pasto",
   },
   {
     tipo: "video",
     src: "/videos/prole-02.mp4",
     poster: "/images/prole-video-02-poster.jpg",
-    alt: "Vídeo dos bezerros filhos do Pontual em vacas cara-limpa",
+    alt: "Vídeo dos bezerros filhos do Pontual em vacas cara-limpa, reunidos no curral",
   },
   {
     tipo: "video",
     src: "/videos/prole-03.mp4",
     poster: "/images/prole-video-03-poster.jpg",
-    alt: "Vídeo dos bezerros filhos do Pontual em vacas cara-limpa",
+    alt: "Vídeo do lote de filhos do Pontual em vacas cara-limpa, a campo aberto",
   },
 ];
 
@@ -306,7 +306,7 @@ export default function ProleCaraLimpa() {
 
           <p className="prole-contador" role="status" aria-live="polite">
             {indice + 1} de {SLIDES.length}
-            {ehVideo ? (tocando ? " · vídeo tocando — toque para pausar" : " · vídeo pausado") : " · foto"}
+            {ehVideo ? (tocando ? " · vídeo tocando, toque para pausar" : " · vídeo pausado") : " · foto"}
           </p>
         </div>
 

@@ -14,7 +14,7 @@ export const TOURO = {
   codigoSemen: "29NE5134",
   nascimento: "2019-08-22",
   raca: "Nelore",
-  criador: "Gil Pereira — Nelore Santa Cruz e DH Agropecuária",
+  criador: "Gil Pereira, Nelore Santa Cruz e DH Agropecuária",
   central: "ABS",
   centralTelefone: "(34) 3319-5400",
   pesoAtualKg: 1050,
@@ -79,17 +79,12 @@ export const DEP_DESMAMA_KG = 9.83;
 /**
  * Eficiência em IATF.
  *
- * `pontual` é a média de prenhez observada com o Pontual nas propriedades em
- * que a Valor acompanha essa mensuração — é média apurada, não promessa: a
- * prenhez depende também de manejo, nutrição e protocolo.
- *
- * `mercado` é o meio da faixa de 45% a 55% citada como média de IATF no país,
- * e serve de base de comparação na calculadora.
+ * Média de prenhez observada com o Pontual nas propriedades em que a Valor
+ * acompanha essa mensuração. É média apurada, não promessa: a prenhez depende
+ * também de manejo, nutrição e protocolo.
  */
 export const IATF = {
   pontualPct: 62,
-  mercadoPct: 50,
-  mercadoFaixa: "45% a 55%",
 };
 
 // Genealogia
@@ -130,7 +125,7 @@ export const CONDICOES_ENTREGA = {
   estadosAtendidos: "Todo o Brasil", // frete a negociar conforme volume e distância
   freteInfo: "A negociar, conforme volume do pedido e distância até a fazenda",
   botijaoPorContaDe:
-    "Por conta do vendedor — o cliente só precisa estar disponível para receber, não precisa providenciar transporte",
+    "Por conta do vendedor: o cliente só precisa estar disponível para receber, não precisa providenciar transporte",
   politicaPrenhezBaixa:
     "Não há troca do sêmen. A garantia é de que o sêmen entregue atende aos padrões do Ministério da Agricultura, porque a central que aloja o Pontual é credenciada e certificada.",
 };

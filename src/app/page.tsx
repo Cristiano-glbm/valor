@@ -1,4 +1,3 @@
-import { precoPorDose } from "@/lib/produto-semen";
 import RevealObserver from "./componentes/RevealObserver";
 import TopBar from "./componentes/TopBar";
 import TouroHeroImagem from "./componentes/TouroHeroImagem";
@@ -27,7 +26,7 @@ export default function Home() {
         <Genealogia />
         <TouroHeroTexto />
         <Fatos />
-        <Calculadora precoDoseInicial={precoPorDose(100)} />
+        <Calculadora />
         <EvolucaoDeps />
         <InfertilidadeBand />
         <PrecoReserva />

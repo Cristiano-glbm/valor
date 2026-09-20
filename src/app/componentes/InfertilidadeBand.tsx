@@ -6,7 +6,7 @@ export default function InfertilidadeBand() {
         <p className="lead">
           A Embrapa estima que 35% dos reprodutores em uso no Brasil são inférteis ou
           subférteis, e que falta mais de 300 mil touros a cada estação reprodutiva. O touro que
-          já está na sua invernada é a sua real alternativa a esta dose — e é a alternativa com
+          já está na sua invernada é a sua real alternativa a esta dose, e é a alternativa com
           mais risco escondido.
         </p>
         <p style={{ fontSize: "0.9rem", color: "var(--cinza-medio)" }}>

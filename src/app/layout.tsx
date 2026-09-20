@@ -3,7 +3,7 @@ import "./globals.css";
 import Consentimento from "./componentes/Consentimento";
 
 export const metadata: Metadata = {
-  title: "Pontual FIV St. Cruz — sêmen Nelore PO | Valor Assessoria Pecuária",
+  title: "Pontual FIV St. Cruz: sêmen Nelore PO | Valor Assessoria Pecuária",
   description:
     "Sêmen do touro Nelore Pontual FIV St. Cruz (RGD GPO A5042). Top 0,1% da raça em ganho da desmama ao sobreano. 211 filhos avaliados. Comercialização exclusiva Valor Assessoria Pecuária.",
   icons: {

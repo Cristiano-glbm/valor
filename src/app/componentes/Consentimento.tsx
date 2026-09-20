@@ -110,15 +110,15 @@ export default function Consentimento() {
               {detalhes && (
                 <ul className="consent-lista">
                   <li>
-                    <b>Necessários</b> — fazem o site funcionar (tema escolhido, sua sessão de
+                    <b>Necessários</b>: fazem o site funcionar (tema escolhido, sua sessão de
                     compra). Sempre ativos e não identificam você.
                   </li>
                   <li>
-                    <b>Medição</b> — Google Analytics, com IP anonimizado: quantas pessoas
+                    <b>Medição</b>, com Google Analytics e IP anonimizado: quantas pessoas
                     visitam e quais seções interessam.
                   </li>
                   <li>
-                    <b>Publicidade</b> — Meta Pixel: mede o resultado dos anúncios no Instagram e
+                    <b>Publicidade</b>, com Meta Pixel: mede o resultado dos anúncios no Instagram e
                     Facebook.
                   </li>
                 </ul>
