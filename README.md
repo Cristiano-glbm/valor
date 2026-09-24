@@ -59,7 +59,8 @@ Nunca versione o `.env` — ele está no `.gitignore`.
 ## Publicar
 
 O caminho completo, com print do que clicar, está em
-[`docs/DEPLOY.md`](docs/DEPLOY.md). Resumo:
+[`docs/DEPLOY.md`](docs/DEPLOY.md). Para ligar um domínio próprio registrado na
+HostGator, veja [`docs/DOMINIO.md`](docs/DOMINIO.md). Resumo:
 
 1. Rode `publicar.ps1` (Windows) para limpar os restos da versão antiga e
    criar o commit inicial.
